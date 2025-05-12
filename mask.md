@@ -96,13 +96,13 @@ M_{pad\_mask} &= v_{pad\_mask} \otimes v_{pad\_mask} \nonumber \\
 0 & 0 & \cdots & 0 & 0 & \cdots & 0 \\
 \end{matrix}\right) \\
 &\rightarrow \left(\begin{matrix}
-0 & 0 & \cdots & 0 & \infin & \cdots & \infin \\
-0 & 0 & \cdots & 0 & \infin & \cdots & \infin \\
+0 & 0 & \cdots & 0 & \infty & \cdots & \infty \\
+0 & 0 & \cdots & 0 & \infty & \cdots & \infty \\
 \vdots & \vdots & \ddots & \vdots & \vdots & \ddots & \vdots \\
-0 & 0 & \cdots & 0 & \infin & \cdots & \infin \\
-\infin & \infin & \cdots & \infin & \infin & \cdots & \infin \\
+0 & 0 & \cdots & 0 & \infty & \cdots & \infty \\
+\infty & \infty & \cdots & \infty & \infty & \cdots & \infty \\
 \vdots & \vdots & \ddots & \vdots & \vdots & \ddots & \vdots \\
-\infin & \infin & \cdots & \infin & \infin & \cdots & \infin \\
+\infty & \infty & \cdots & \infty & \infty & \cdots & \infty \\
 \end{matrix}\right),
 \end{align}
 ```
@@ -137,12 +137,12 @@ M_{tgt\_mask} &= v_{tgt\_mask} \otimes v_{tgt\_mask} \\
 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0
 \end{matrix}\right) \\
 &\rightarrow \left(\begin{matrix}
-0 & 0 & 0 & 0 & \infin & \infin & \infin & \infin & \infin & \infin \\
-0 & 0 & 0 & 0 & 0 & \infin & \infin & \infin & \infin & \infin \\
-0 & 0 & 0 & 0 & 0 & 0 & \infin & \infin & \infin & \infin \\
-0 & 0 & 0 & 0 & 0 & 0 & 0 & \infin & \infin & \infin \\
-0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & \infin & \infin \\
-0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & \infin \\
+0 & 0 & 0 & 0 & \infty & \infty & \infty & \infty & \infty & \infty \\
+0 & 0 & 0 & 0 & 0 & \infty & \infty & \infty & \infty & \infty \\
+0 & 0 & 0 & 0 & 0 & 0 & \infty & \infty & \infty & \infty \\
+0 & 0 & 0 & 0 & 0 & 0 & 0 & \infty & \infty & \infty \\
+0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & \infty & \infty \\
+0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & \infty \\
 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
