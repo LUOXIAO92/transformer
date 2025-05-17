@@ -5,7 +5,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import opt_einsum as oe
 
-import Function
+from . import Function
 
 class PositionEncoding(nn.Module):
     def __init__(
@@ -53,15 +53,15 @@ class PositionEncoding(nn.Module):
 class ScaleProductAttention(nn.Module):
     def __init__(
             self, 
-            dk : int
+            d_k : int
             ):
-        super().__init__(nn.Module)
+        super().__init__()
 
-        self.dk = dk
+        self.d_k = d_k
 
-        self.cal_Q = nn.Linear(in_features = dk, out_features = dk)
-        self.cal_K = nn.Linear(in_features = dk, out_features = dk)
-        self.cal_V = nn.Linear(in_features = dk, out_features = dk)
+        self.cal_Q = nn.Linear(in_features = d_k, out_features = d_k)
+        self.cal_K = nn.Linear(in_features = d_k, out_features = d_k)
+        self.cal_V = nn.Linear(in_features = d_k, out_features = d_k)
 
     def forward(
             self, 
@@ -85,10 +85,11 @@ class ScaleProductAttention(nn.Module):
         -------
         x : Attention(Q,K,V) with mask with the shape of (batch_size, query_seq_len, d_k).
         """
+
         Q = self.cal_Q(xQ)
         K = self.cal_K(xK)
         V = self.cal_V(xV)
-
+        
         QKT = oe.contract('bQd,bKd->bQK', Q, K)
 
         mask_matrix = None
@@ -106,7 +107,8 @@ class ScaleProductAttention(nn.Module):
 
         S = F.softmax(QKT, dim = -1)
         del QKT
-        Attention = oe.contract('bQK,Kd->bQd', S, V)
+
+        Attention = oe.contract('bQK,bKd->bQd', S, V)
 
         return Attention
 
@@ -124,7 +126,7 @@ class MultiHeadAttention(nn.Module):
         self.d_k = d_model // n_head
 
         self.SDPAs = nn.ModuleList(
-            [ScaleProductAttention(dk = self.dk) 
+            [ScaleProductAttention(d_k = self.d_k) 
              for i in range(n_head)]
             )
 
@@ -161,15 +163,18 @@ class MultiHeadAttention(nn.Module):
         q_seq_len  = xQ.shape[1]
         k_seq_len  = xK.shape[1]
         v_seq_len  = xV.shape[1]
+        xQ = xQ.view(size = (xQ.shape[0], xQ.shape[1], self.n_head, self.d_k))
+        xK = xK.view(size = (xK.shape[0], xK.shape[1], self.n_head, self.d_k))
+        xV = xV.view(size = (xV.shape[0], xV.shape[1], self.n_head, self.d_k))
         
         As = []
-        for SDPA in self.SDPAs:
+        for h, SDPA in enumerate(self.SDPAs):
             As.append(
-                SDPA.forward(xQ, xK, xV, padding_mask, casual_mask)
+                SDPA(xQ[:,:,h,:], xK[:,:,h,:], xV[:,:,h,:], padding_mask, casual_mask)
                 )
-            
-        Attention = torch.zeros(size = (q_seq_len, self.d_model))
-        for A, WO in As, self.WOs:
+        
+        Attention = torch.zeros(size = (batch_size, q_seq_len, self.d_model))
+        for A, WO in zip(As, self.WOs):
             Attention += WO(A)
 
         del As

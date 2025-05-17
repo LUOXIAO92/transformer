@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 
-import Module as M
+from . import Module as M
 
 
 class EncodingLayer(nn.Module):

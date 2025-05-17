@@ -2,7 +2,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-import Layer
+from . import Module
+from . import Layer
 
 class Encoder(nn.Module):
     def __init__(
@@ -108,6 +109,8 @@ class Transformer(nn.Module):
             ):
         super().__init__()
 
+        self.PositionalEmbedding = Module.PositionEncoding()
+
         self.Embedding = nn.Embedding(
             num_embeddings = vocab_size,
             embedding_dim  = d_model,
@@ -151,16 +154,18 @@ class Transformer(nn.Module):
         src_padding_mask : Padding mask for source sequences, shape = (batch_size, src_seq_length)
         tgt_padding_mask : Padding mask for target sequences, shape = (batch_size, tgt_seq_length)
         tgt_casual_mask  : Casual mask for target sequences, shape = (batch_size, tgt_seq_length)
-        
+         
         Return
         ------
         output : Output of the `Logit` value, shape = (batch_size, out_seq_length, d_model)
         """
         
         source = self.Embedding(src)
+        source = self.PositionalEmbedding(source)
         source = self.Encoder(source, src_padding_mask)
 
         target = self.Embedding(tgt)
+        target = self.PositionalEmbedding(target)
         target = self.Decoder(source, target, tgt_padding_mask, tgt_casual_mask)
 
         output = self.Linear(target)

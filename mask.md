@@ -4,9 +4,9 @@
 Input sentence (source sentence or src in short) with $M$ words and $N$ PADs, where $s_i$ is the token ID (index of vocabulary) that represent to relative one-hot vector.
 ```math
 \begin{align}
-&\text{src} : \nonumber\\
+&\mathrm{src} : \nonumber\\
 &\quad s = (s_0, s_1, s_2, \cdots, s_M, s_{m+1}, \cdots, s_{M+N-1}) \\
-&\text{one-hot vectors of src} : \nonumber \\
+&\mathrm{one-hot vectors of src} : \nonumber \\
 &\quad s \equiv \left(\begin{matrix}
 s_{0,0} & s_{0,1} & s_{0,2} & s_{0,3} & \cdots & s_{0,d_{vocab}-1}\\
 s_{1,0} & s_{1,1} & s_{1,2} & s_{1,3} & \cdots & s_{1,d_{vocab}-1}\\
@@ -76,10 +76,10 @@ qk^T_{M+N-1,0} & qk^T_{M+N-1,1} & \cdots & qk^T_{M+N-1,M-1} & qk^T_{M+N-1,M} & \
 The attention is given by
 ```math
 \begin{equation}
-\text{Attention}(Q,K,V) = \text{softmax}\left( \frac{QK^T}{\sqrt{d_{model}}} \right) V,
+\mathrm{Attention}(Q,K,V) = \mathrm{softmax}\left( \frac{QK^T}{\sqrt{d_{model}}} \right) V,
 \end{equation}
 ```
-where $\text{Attention}(Q,K,V)$ have a size of $d_{M+N-1} \times d_{model}$. Here we want to ignore the PADs by masking out the PAD elements in $QK^T$ matrix. 
+where $\mathrm{Attention}(Q,K,V)$ have a size of $d_{M+N-1} \times d_{model}$. Here we want to ignore the PADs by masking out the PAD elements in $QK^T$ matrix. 
 
 Example of PAD mask:
 ```math
@@ -110,7 +110,7 @@ M_{pad\_mask} &= v_{pad\_mask} \otimes v_{pad\_mask} \nonumber \\
 where the $0$ elements in $v_{pad\_mask}$ are from $M$-th to $(M+N-1)$-th. Then the attention is modified as following
 ```math
 \begin{equation}
-\text{Attention}(Q,K,V) = \text{softmax}\left( \frac{QK^T - M_{pad\_mask}}{\sqrt{d_{model}}} \right) V.
+\mathrm{Attention}(Q,K,V) = \mathrm{softmax}\left( \frac{QK^T - M_{pad\_mask}}{\sqrt{d_{model}}} \right) V.
 \end{equation}
 ```
 
@@ -175,7 +175,7 @@ mask_mat
 
 Attention:
 ```math
-\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T - M_{tgt\_mask}}{\sqrt{d_{model}}}\right) V
+\mathrm{Attention}(Q, K, V) = \mathrm{softmax}\left(\frac{QK^T - M_{tgt\_mask}}{\sqrt{d_{model}}}\right) V
 ```
 
 EXAMPLE:
@@ -214,39 +214,39 @@ $p_{i,j}$ : Weight between a given $i$-th query and $j$-th key
 \end{equation}
 ```
 
-For the given target $\text{tgt}_{input} = (\text{[BOS]}, ~\text{YES}, ~\text{,}, ~\text{attention}, ~\text{is}, ~\text{very}, ~\text{powerful}, ~\text{.})$, suppose we want to predict the words behind $\text{[BOS]}$. Hence we will need features from the $0$-th token for $\bm{x}_0$, the $0,1$-st tokens for $\bm{x}_1$, the $0,1,2$-nd tokens for $\bm{x}_2$, and so on. Next, we will compute the source target attention :
+For the given target $\mathrm{tgt}_{input} = (\mathrm{[BOS]}, ~\mathrm{YES}, ~\mathrm{,}, ~\mathrm{attention}, ~\mathrm{is}, ~\mathrm{very}, ~\mathrm{powerful}, ~\mathrm{.})$, suppose we want to predict the words behind $\mathrm{[BOS]}$. Hence we will need features from the $0$-th token for $\bm{x}_0$, the $0,1$-st tokens for $\bm{x}_1$, the $0,1,2$-nd tokens for $\bm{x}_2$, and so on. Next, we will compute the source target attention :
 ```math
 \begin{align}
-&\text{Attention}(Q,K,V) \nonumber \\
-=~& \text{Softmax}({x}_{decoded} {W^Q} {W^V}^T {x}^T_{encoded}) {x}_{encoded} {W^V}
+&\mathrm{Attention}(Q,K,V) \nonumber \\
+=~& \mathrm{Softmax}({x}_{decoded} {W^Q} {W^V}^T {x}^T_{encoded}) {x}_{encoded} {W^V}
 \end{align}
 ```
-The $\text{Softmax}$ computes the weights between query $Q = x_{decoded}W^Q$ which's $x$ from encoder and key $K = x_{encoded} W^K$ from decoder. Remember that the $\bm{x}_i$ only contains the features up to $i$-th tokens, that means the $i$-th output token only depends on the previous.
+The $\mathrm{Softmax}$ computes the weights between query $Q = x_{decoded}W^Q$ which's $x$ from encoder and key $K = x_{encoded} W^K$ from decoder. Remember that the $\bm{x}_i$ only contains the features up to $i$-th tokens, that means the $i$-th output token only depends on the previous.
 
 
 # Training steps
 Example: 
-* input: $\text{src} = (\text{Attention}, ~\text{is}, ~\text{all}, ~\text{you}, ~\text{need}, ~\text{.}, ~\text{[EOS]})$ 
-* Expected output (or answer): $\text{tgt} = (\text{[BOS]}, ~\text{Yes}, ~\text{,}, ~\text{attention}, ~\text{is}, ~\text{very}, ~\text{powerful}, ~\text{.}, ~\text{[EOS]})$
-* Predected output: $\text{out} = (\bm{o}_0, ~\bm{o}_1,\cdots, ~\bm{o}_{m-2}, ~\bm{o}_{m-1})$, where $\bm{o}_i$ is the vector of $\text{logit}$ values that $\bm{o}_i = (o_{i,0}, ~o_{i,1}, ~o_{i,d_{vocab}}) $ and $y_{pred} = \text{softmax}(\text{out}) = (y_0,~y_1, ~y_2, \cdots, ~y_{m-1})$
-* Evaluate cross entropy with $\text{out}$ and answer by using $\text{tgt}_{output} \equiv (\text{YES}, ~\text{,}, ~\text{attention}, ~\text{is}, ~\text{very}, ~\text{powerful}, ~\text{.}, ~\text{[EOS]})$
+* input: $\mathrm{src} = (\mathrm{Attention}, ~\mathrm{is}, ~\mathrm{all}, ~\mathrm{you}, ~\mathrm{need}, ~\mathrm{.}, ~\mathrm{[EOS]})$ 
+* Expected output (or answer): $\mathrm{tgt} = (\mathrm{[BOS]}, ~\mathrm{Yes}, ~\mathrm{,}, ~\mathrm{attention}, ~\mathrm{is}, ~\mathrm{very}, ~\mathrm{powerful}, ~\mathrm{.}, ~\mathrm{[EOS]})$
+* Predected output: $\mathrm{out} = (\bm{o}_0, ~\bm{o}_1,\cdots, ~\bm{o}_{m-2}, ~\bm{o}_{m-1})$, where $\bm{o}_i$ is the vector of $\mathrm{logit}$ values that $\bm{o}_i = (o_{i,0}, ~o_{i,1}, ~o_{i,d_{vocab}}) $ and $y_{pred} = \mathrm{softmax}(\mathrm{out}) = (y_0,~y_1, ~y_2, \cdots, ~y_{m-1})$
+* Evaluate cross entropy with $\mathrm{out}$ and answer by using $\mathrm{tgt}_{output} \equiv (\mathrm{YES}, ~\mathrm{,}, ~\mathrm{attention}, ~\mathrm{is}, ~\mathrm{very}, ~\mathrm{powerful}, ~\mathrm{.}, ~\mathrm{[EOS]})$
 
 Training steps:
-1. $\text{src} = (\text{Attention}, ~\text{is}, ~\text{all}, ~\text{you}, ~\text{need}, ~\text{.}, ~\text{[EOS]})$ 
-2. $s_{input} = (s_0, ~s_1, ~s_2, ~s_3, ~s_4, ~s_5, ~s_6) $, $\text{src\_mask} = (1,1,1,1,1,1,1)$.
+1. $\mathrm{src} = (\mathrm{Attention}, ~\mathrm{is}, ~\mathrm{all}, ~\mathrm{you}, ~\mathrm{need}, ~\mathrm{.}, ~\mathrm{[EOS]})$ 
+2. $s_{input} = (s_0, ~s_1, ~s_2, ~s_3, ~s_4, ~s_5, ~s_6) $, $\mathrm{src\_mask} = (1,1,1,1,1,1,1)$.
 * In decoder:
 
-    3. Compute $x_{encoded} = \text{Encoder}(s_{input}, ~\text{src\_mask})$
+    3. Compute $x_{encoded} = \mathrm{Encoder}(s_{input}, ~\mathrm{src\_mask})$
 
-4. Right shift the target $\text{tgt}$ to $\text{tgt}_{input} = (\text{[BOS]}, ~\text{YES}, ~\text{,}, ~\text{attention}, ~\text{is}, ~\text{very}, ~\text{powerful}, ~\text{.})$
-5. $\bm{t}_{input} = (t_0, ~t_1, ~t_2, ~t_3, ~t_4, ~t_5, ~t_6, ~t_7)$, $\text{tgt\_mask} = (1,0,0,0,0,0,0,0)$.
+4. Right shift the target $\mathrm{tgt}$ to $\mathrm{tgt}_{input} = (\mathrm{[BOS]}, ~\mathrm{YES}, ~\mathrm{,}, ~\mathrm{attention}, ~\mathrm{is}, ~\mathrm{very}, ~\mathrm{powerful}, ~\mathrm{.})$
+5. $\bm{t}_{input} = (t_0, ~t_1, ~t_2, ~t_3, ~t_4, ~t_5, ~t_6, ~t_7)$, $\mathrm{tgt\_mask} = (1,0,0,0,0,0,0,0)$.
 
 * In encoder:
 
-    6. Compute attention of input target $x_{decoded} = \text{Attention}(Q,K,V)$ with target mask (in this case, we use casual mask) and then Add&Norm.
-    7. Use the $x_{encoded}$ to construct query $Q$ and value $V$, $x_{decoded}$ to construct key $K$, then compute attention $x_{decoded} = \text{Attention}(Q,K,V)$ and Add&Norm.
+    6. Compute attention of input target $x_{decoded} = \mathrm{Attention}(Q,K,V)$ with target mask (in this case, we use casual mask) and then Add&Norm.
+    7. Use the $x_{encoded}$ to construct query $Q$ and value $V$, $x_{decoded}$ to construct key $K$, then compute attention $x_{decoded} = \mathrm{Attention}(Q,K,V)$ and Add&Norm.
     8. Next Compute feed forward and Add&Norm and obtain $x_{decoded}$.
     9. Use the $x_{decoded}$ as input from 8. and repeat 6. to 8. for $N$ times where $N$ is the number of decoding block.
     
-10. Compute the output logit values $\text{out} = x_{decoded} W$.
+10. Compute the output logit values $\mathrm{out} = x_{decoded} W$.
 11. Evaluate the cross entropy. 

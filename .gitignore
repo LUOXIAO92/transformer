@@ -3,6 +3,9 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+#debug jupyter note
+Debug.ipynb
+
 # C extensions
 *.so
 
