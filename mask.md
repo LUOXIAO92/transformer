@@ -184,18 +184,18 @@ $p_{i,j}$ : Weight between a given $i$-th query and $j$-th key
 
 ```math
 \begin{equation}
-\bm{x}_i = \sum_{j} p_{ij} \bm{v}_j
+\bf{x}_i = \sum_{j} p_{ij} \bf{v}_j
 \end{equation}
 ```
 
 ```math
 \begin{equation}
 \left(\begin{matrix}
-    \bm{x}_0 \\
-    \bm{x}_1 \\
-    \bm{x}_2 \\
+    \bf{x}_0 \\
+    \bf{x}_1 \\
+    \bf{x}_2 \\
     \vdots \\
-    \bm{x}_M
+    \bf{x}_M
 \end{matrix}\right) = 
 \left(\begin{matrix}
     p_{00} & p_{01} & p_{02} & \cdots & p_{0M} \\
@@ -205,30 +205,30 @@ $p_{i,j}$ : Weight between a given $i$-th query and $j$-th key
     p_{M0} & p_{M1} & p_{M2} & \cdots & p_{MM}
 \end{matrix}\right)
 \left(\begin{matrix}
-    \bm{v}_0 \\
-    \bm{v}_1 \\
-    \bm{v}_2 \\
+    \bf{v}_0 \\
+    \bf{v}_1 \\
+    \bf{v}_2 \\
     \vdots \\
-    \bm{v}_M
+    \bf{v}_M
 \end{matrix}\right)
 \end{equation}
 ```
 
-For the given target $\mathrm{tgt}_{input} = (\mathrm{[BOS]}, ~\mathrm{YES}, ~\mathrm{,}, ~\mathrm{attention}, ~\mathrm{is}, ~\mathrm{very}, ~\mathrm{powerful}, ~\mathrm{.})$, suppose we want to predict the words behind $\mathrm{[BOS]}$. Hence we will need features from the $0$-th token for $\bm{x}_0$, the $0,1$-st tokens for $\bm{x}_1$, the $0,1,2$-nd tokens for $\bm{x}_2$, and so on. Next, we will compute the source target attention :
+For the given target $\mathrm{tgt}_{input} = (\mathrm{[BOS]}, ~\mathrm{YES}, ~\mathrm{,}, ~\mathrm{attention}, ~\mathrm{is}, ~\mathrm{very}, ~\mathrm{powerful}, ~\mathrm{.})$, suppose we want to predict the words behind $\mathrm{[BOS]}$. Hence we will need features from the $0$-th token for $\bf{x}_0$, the $0,1$-st tokens for $\bf{x}_1$, the $0,1,2$-nd tokens for $\bf{x}_2$, and so on. Next, we will compute the source target attention :
 ```math
 \begin{align}
 &\mathrm{Attention}(Q,K,V) \nonumber \\
 =~& \mathrm{Softmax}({x}_{decoded} {W^Q} {W^V}^T {x}^T_{encoded}) {x}_{encoded} {W^V}
 \end{align}
 ```
-The $\mathrm{Softmax}$ computes the weights between query $Q = x_{decoded}W^Q$ which's $x$ from encoder and key $K = x_{encoded} W^K$ from decoder. Remember that the $\bm{x}_i$ only contains the features up to $i$-th tokens, that means the $i$-th output token only depends on the previous.
+The $\mathrm{Softmax}$ computes the weights between query $Q = x_{decoded}W^Q$ which's $x$ from encoder and key $K = x_{encoded} W^K$ from decoder. Remember that the $\bf{x}_i$ only contains the features up to $i$-th tokens, that means the $i$-th output token only depends on the previous.
 
 
 # Training steps
 Example: 
 * input: $\mathrm{src} = (\mathrm{Attention}, ~\mathrm{is}, ~\mathrm{all}, ~\mathrm{you}, ~\mathrm{need}, ~\mathrm{.}, ~\mathrm{[EOS]})$ 
 * Expected output (or answer): $\mathrm{tgt} = (\mathrm{[BOS]}, ~\mathrm{Yes}, ~\mathrm{,}, ~\mathrm{attention}, ~\mathrm{is}, ~\mathrm{very}, ~\mathrm{powerful}, ~\mathrm{.}, ~\mathrm{[EOS]})$
-* Predected output: $\mathrm{out} = (\bm{o}_0, ~\bm{o}_1,\cdots, ~\bm{o}_{m-2}, ~\bm{o}_{m-1})$, where $\bm{o}_i$ is the vector of $\mathrm{logit}$ values that $\bm{o}_i = (o_{i,0}, ~o_{i,1}, ~o_{i,d_{vocab}}) $ and $y_{pred} = \mathrm{softmax}(\mathrm{out}) = (y_0,~y_1, ~y_2, \cdots, ~y_{m-1})$
+* Predected output: $\mathrm{out} = (\bf{o}_0, ~\bf{o}_1,\cdots, ~\bf{o}_{m-2}, ~\bf{o}_{m-1})$, where $\bf{o}_i$ is the vector of $\mathrm{logit}$ values that $\bf{o}_i = (o_{i,0}, ~o_{i,1}, ~o_{i,d_{vocab}}) $ and $y_{pred} = \mathrm{softmax}(\mathrm{out}) = (y_0,~y_1, ~y_2, \cdots, ~y_{m-1})$
 * Evaluate cross entropy with $\mathrm{out}$ and answer by using $\mathrm{tgt}_{output} \equiv (\mathrm{YES}, ~\mathrm{,}, ~\mathrm{attention}, ~\mathrm{is}, ~\mathrm{very}, ~\mathrm{powerful}, ~\mathrm{.}, ~\mathrm{[EOS]})$
 
 Training steps:
@@ -239,7 +239,7 @@ Training steps:
     3. Compute $x_{encoded} = \mathrm{Encoder}(s_{input}, ~\mathrm{src\_mask})$
 
 4. Right shift the target $\mathrm{tgt}$ to $\mathrm{tgt}_{input} = (\mathrm{[BOS]}, ~\mathrm{YES}, ~\mathrm{,}, ~\mathrm{attention}, ~\mathrm{is}, ~\mathrm{very}, ~\mathrm{powerful}, ~\mathrm{.})$
-5. $\bm{t}_{input} = (t_0, ~t_1, ~t_2, ~t_3, ~t_4, ~t_5, ~t_6, ~t_7)$, $\mathrm{tgt\_mask} = (1,0,0,0,0,0,0,0)$.
+5. $\bf{t}_{input} = (t_0, ~t_1, ~t_2, ~t_3, ~t_4, ~t_5, ~t_6, ~t_7)$, $\mathrm{tgt\_mask} = (1,0,0,0,0,0,0,0)$.
 
 * In encoder:
 
